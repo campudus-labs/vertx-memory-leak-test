@@ -55,6 +55,7 @@ dependencies {
   provided "org.codehaus.groovy:groovy-all:$groovyVersion"
   provided "io.vertx:lang-groovy:$groovyLangModVersion@jar"
 
+  provided "io.vertx:lang-scala_2.10:1.1.0-M1"
 }
 
 test {

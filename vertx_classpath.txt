@@ -1,0 +1,5 @@
+src/main/resources
+bin
+out/production/vertx-module-memory-test
+out/test/vertx-module-memory-test
+build/deps

@@ -18,8 +18,11 @@
 package com.mycompany.myproject;
 
 
+import org.vertx.java.core.AsyncResult;
+import org.vertx.java.core.Future;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
+import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Verticle;
 
@@ -30,9 +33,40 @@ import org.vertx.java.platform.Verticle;
  */
 public class PingVerticle extends Verticle {
 
-  public void start() {
-
+  @Override
+  public void start(final Future<Void> startedResult) {
     final Logger logger = container.logger();
+
+//    container.deployModule("com.campudus~session-manager~2.0.1-final", new JsonObject(), 1, new Handler<AsyncResult<String>>() {
+//      @Override
+//      public void handle(AsyncResult<String> event) {
+//        container.deployModule("com.campudus~session-manager~2.0.1-final", new JsonObject(), 1, new Handler<AsyncResult<String>>() {
+//          @Override
+//          public void handle(AsyncResult<String> event) {
+    container.deployModule("io.vertx~mod-mysql-postgresql_2.10~0.4.0-SNAPSHOT", new JsonObject(), 1, new Handler<AsyncResult<String>>() {
+      @Override
+      public void handle(AsyncResult<String> event) {
+        if (event.succeeded()) {
+          vertx.eventBus().sendWithTimeout("campudus.asyncdb", new JsonObject().putString("action", "raw").putString("command", "SELECT 0"), 500L,
+            new Handler<AsyncResult<Message<JsonObject>>>() {
+              @Override
+              public void handle(AsyncResult<Message<JsonObject>> event) {
+                if (event.succeeded()) {
+                  startedResult.setResult(null);
+                } else {
+                  startedResult.setFailure(event.cause());
+                }
+              }
+            });
+        } else {
+          startedResult.setFailure(event.cause());
+        }
+      }
+    });
+//          }
+//        });
+//      }
+//    });
 
     vertx.eventBus().registerHandler("ping-address", new Handler<Message<String>>() {
       @Override
